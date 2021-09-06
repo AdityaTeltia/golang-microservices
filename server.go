@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -18,15 +20,28 @@ func main() {
 
 	// Serve Mux is a multiplex handler unlike other handlers
 
-	sm := http.NewServeMux()
-	sm.Handle("/", ph)
+	sm := mux.NewRouter()
+	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", ph.GetProducts)
+
+	putRouter := sm.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}",ph.UpdateProducts)
+	putRouter.Use(ph.MiddlewareValidateProduct)
+
+	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/",ph.AddProducts)
+	postRouter.Use(ph.MiddlewareValidateProduct)
+
+
+
+	// sm.Handle("/products", ph).Methods("GET")
 
 	// Created our own server
 	// Why ?
 	// For handling Timeouts
 	// What ?
 	// Basically if the user is not using our server for a while
-	// User will automatically get disconnected , and this will be 
+	// User will automatically get disconnected , and this will be
 	// helpful for saving resources
 
 	s := &http.Server{
