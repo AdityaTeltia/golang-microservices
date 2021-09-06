@@ -20,6 +20,7 @@ func main() {
 
 	// Serve Mux is a multiplex handler unlike other handlers
 
+	
 	sm := mux.NewRouter()
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/", ph.GetProducts)
